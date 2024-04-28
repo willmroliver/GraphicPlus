@@ -1,0 +1,10 @@
+target_sources(
+    OpenGLPlayground
+        PRIVATE
+            buffer.cc
+            element-buffer.cc
+            glad.c
+            programme.cc
+            vertex-array.cc
+            window.cc
+)
