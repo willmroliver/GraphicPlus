@@ -2,6 +2,8 @@
 #include "programme.hh"
 #include "util.hh"
 #include "vertex-array.hh"
+#include <cmath>
+#include <functional>
 
 Window::Window(int width, int height, std::string title) {
     if (!glfwInit()) {
@@ -46,59 +48,86 @@ Window::operator GLFWwindow*() {
 }
 
 void Window::run() {
-    Programme p { "assets/vertex-shader.glsl", "assets/fragment-shader.glsl" };
-
-    std::vector<float> triangle0 {
-        -0.9f,  0.1f, 0.0f,  // left 
-        -0.1f,  0.1f, 0.0f,  // right
-        -0.5f, 0.9f, 0.0f,  // top 
+    Programme p {
+        "assets/vertex-shader.glsl",
+        "assets/fragment-shader.glsl"
     };
 
-    std::vector<float> triangle1 {
-        0.1f, 0.1f, 0.0f,  // left
-        0.9f, 0.1f, 0.0f,  // right
-        0.5f, 0.9f, 0.0f,   // top 
+    std::vector<float> vertices {
+        // face 1
+        0.5f, 0.5f, 0.0f, 1.0f,     // 0 front top right
+        0.5f, -0.5f, 0.0f, 1.0f,    // 1 front bottom right
+        -0.5, -0.5f, 0.0f, 1.0f,    // 2 front bottom left
+        -0.5f, 0.5f, 0.0f, 1.0f,    // 3 front top left
+        0.5f, 0.5f, 0.5f, 1.0f,     // 4 back top right
+        0.5f, -0.5f, 0.5f, 1.0f,    // 5 back bottom right
+        -0.5, 0.5, 0.5f, 1.0f,      // 6 back top left
+        -0.5f, -0.5f, 0.5f, 1.0f,   // 7 back bottom left
     };
 
-    std::vector<float> square {
-        0.5f, -0.1f, 0.0f,  // top right
-        0.5f, -0.9f, 0.0f,  // bottom right
-        -0.5f, -0.9f, 0.0f,  // bottom left
-        -0.5f, -0.1f, 0.0f,   // top left
-    };
-    
+    for (unsigned long i = 0; i < vertices.size(); i += 4) {
+        float x = vertices[i];
+        float y = vertices[i + 1];
+
+        float x_ = x - 0.25;
+        float y_ = y - 0.25;
+
+        vertices[i] = x_;
+        vertices[i + 1] = y_;
+    }
+
     std::vector<unsigned int> indices {
-        0, 1, 3,
-        1, 2, 3,
+        // front face
+        0, 2, 1,
+        0, 3, 2,
+
+        // rhs face
+        1, 5, 4,
+        1, 4, 0,
+
+        // top face
+        0, 4, 6,
+        0, 6, 3,
+
+        // bottom face
+        1, 2, 7,
+        1, 7, 5,
+
+        // lhs face
+        2, 3, 6,
+        2, 6, 7,
+
+        // back face
+        4, 5, 6,
+        6, 5, 7,
     };
 
-    VertexArray triangle0_vao {
-        { 0, GL_ARRAY_BUFFER, triangle0, 3, GL_FALSE, 0 }
-    };
+    Buffer cube { GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW };
+    ElementBuffer el { indices, GL_STATIC_DRAW };
 
-    VertexArray triangle1_vao {
-        { 0, GL_ARRAY_BUFFER, triangle1, 3, GL_FALSE, 0 }
-    };
+    VertexArray vao;
+    vao.bind();
+    cube.bind();
+    el.bind();
+    Buffer::vertex_attrib_pointer(0, 4, GL_FALSE, 0);
+    Buffer::enable_vertex_attrib_array(0);
 
-    VertexArray square_vao { 
-        { 0, GL_ARRAY_BUFFER, square, 3, GL_FALSE, 0 }, 
-        { 0, indices }
-    };
+    // set wireframe mode
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    triangle0_vao.prepare();
-    triangle1_vao.prepare();
-    square_vao.prepare();
+    // enable face culling
+    glFrontFace(GL_CCW);
+    glCullFace(GL_FRONT);
+    glEnable(GL_CULL_FACE);
 
     while (!glfwWindowShouldClose(window)) {
-        glClearColor(0.1f, 0.05f, 0.5f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(p);
+        vao.bind();
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
-        triangle0_vao.draw(GL_TRIANGLES);
-        triangle1_vao.draw(GL_TRIANGLES);
-        square_vao.draw(GL_TRIANGLES);
- 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
