@@ -8,26 +8,22 @@
 class ElementBuffer {
     private:
         GLuint id = 0;
-        GLuint index;
         GLint size;
         std::vector<unsigned int> data;
 
     public:
         ElementBuffer() = default;
-        ElementBuffer(GLuint index, std::vector<unsigned int> data);
+        ElementBuffer(std::vector<unsigned int> data, GLenum usage=GL_STATIC_DRAW);
         ElementBuffer(const ElementBuffer& buffer) = delete;
         ElementBuffer(ElementBuffer&& buffer);
         ~ElementBuffer();
 
+        void bind();
+        void unbind();
+
         ElementBuffer& operator=(const ElementBuffer& buffer) = delete;
         ElementBuffer& operator=(ElementBuffer&& buffer);
         operator GLuint();
-
-        void prepare();
-        void bind();
-        void unbind();
-        void buffer_data(GLenum usage=GL_STATIC_DRAW);
-        void draw_elements(GLenum mode=GL_TRIANGLES, GLsizei count=0, const void* indices=0);
 };
 
 #endif

@@ -3,23 +3,30 @@
 #include <iostream>
 #include <vector>
 
-Programme::Programme(std::string vertex_path, std::string fragment_path):
+Programme::Programme(std::string vertex_path, std::string fragment_path, std::vector<std::string> uniform_names):
     vertex_path { vertex_path }, 
     fragment_path { fragment_path } 
 {
     const auto [success, info_log] = Programme::create_shader(vertex_id, GL_VERTEX_SHADER, vertex_path);
     if (!success) {
+        std::cout << "Failed to compile vertex shader: " << info_log << std::endl;
         exit(1);
     }
 
     const auto [success2, info_log2] = Programme::create_shader(fragment_id, GL_FRAGMENT_SHADER, fragment_path);
     if (!success2) {
+        std::cout << "Failed to compile fragment shader: " << info_log2 << std::endl;
         exit(1);
     }
 
     const auto [success3, info_log3] = Programme::create_programme(programme_id, { vertex_id, fragment_id });
     if (!success3) {
+        std::cout << "Failed to link programme: " << info_log3 << std::endl;
         exit(1);
+    }
+
+    for (auto name : uniform_names) {
+        uniform[name] = glGetUniformLocation(programme_id, name.c_str());
     }
 }
 
@@ -86,4 +93,14 @@ void Programme::delete_shader(unsigned int& id) {
 void Programme::delete_programme(unsigned int& id) {
     glDeleteProgram(id);
     id = 0;
+}
+
+int Programme::uniform_location(std::string name) {
+    auto it = uniform.find(name);
+
+    if (it == uniform.end()) {
+        return -1;
+    }
+
+    return it->second;
 }
