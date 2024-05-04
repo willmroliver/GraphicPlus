@@ -1,7 +1,8 @@
 #version 410 core
 
+smooth in vec4 color_out;
 out vec4 outColour;
 
 void main() {
-    outColour = vec4(max(gl_FragCoord.z, 0) * 0.5f, 0.0f, 1.0f, 1.0f);
+    outColour = color_out;
 }

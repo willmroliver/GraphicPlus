@@ -6,10 +6,17 @@
 #include <iostream>
 #include <functional>
 #include <string>
+#include <unordered_map>
 
 class Window {
 private:
     GLFWwindow* window;
+    int width;
+    int height;
+    float z_min;
+    float z_max;
+    float scale;
+    float perspective_matrix[16];
 
 public:
     Window(int width, int height, std::string title);
@@ -17,15 +24,14 @@ public:
     operator GLFWwindow*();
 
     void run();
-    static void show(GLFWwindow* window);
-    static void hide(GLFWwindow* window);
-    static void close(GLFWwindow* window);
-    static std::pair<int, int> size(GLFWwindow* window);
-    static std::pair<int, int> position(GLFWwindow* window);
-    static void move(GLFWwindow* window, int x, int y);
-    static void resize(GLFWwindow* window, int width, int height);
-    static void set_title(GLFWwindow* window, std::string title);
-    static void set_key_callback(GLFWwindow* window, GLFWkeyfun);
+    void show();
+    void hide();
+    void close();
+    std::pair<int, int> size();
+    std::pair<int, int> position();
+    void move(int x, int y);
+    void resize(int width, int height);
+    void set_title(std::string title);
+    void set_key_callback(GLFWkeyfun);
 };
-
 #endif

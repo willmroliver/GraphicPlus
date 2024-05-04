@@ -60,7 +60,7 @@ void Buffer::sub_data(std::vector<float>& data, int from) {
 }
 
 void Buffer::vertex_attrib_pointer(GLuint index, GLint size, GLboolean normalized, GLsizei stride, unsigned int from) {
-    glVertexAttribPointer(index, size, GL_FLOAT, normalized, stride, (void*)from);
+    glVertexAttribPointer(index, size, GL_FLOAT, normalized, stride * sizeof(float), (void*)(from * sizeof(float)));
 }
 
 void Buffer::enable_vertex_attrib_array(GLuint index) {
