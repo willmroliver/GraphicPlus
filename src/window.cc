@@ -157,6 +157,10 @@ void Window::run() {
     perspective_matrix[14] = -2 * z_max * z_min / (z_max - z_min);
     perspective_matrix[11] = -1.0f;
 
+    auto rotate = [](float a, float b, float x, float y, float r) {
+        
+    };
+
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
